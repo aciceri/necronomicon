@@ -1,0 +1,59 @@
+SCREEN:
+
+################################################################################
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                             The map is here                                  #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+#                                                                              #
+################################################################################
+Message 4 blah blah blah blah blah                                      Hp:  203
+Message 3 blah blah blah blah                                         Ammo:   48
+Message 2 blah blah                                                   Move:  345
+Message 1 blah blah blah                                             Level:  453
+
+
+SCREEN AREAS:
+Map: 0,0:80,20
+Messages: 1,21:60,24
+Stats: 61,21:80,24
+
+GAME:
+- in a dungeon
+- 3 bosses + final boss (with necronomicon)
+- find the necronomicon
+
+SCRIPT:
+You are fallen in a portal to another dimension, now you must find the necronomicon to back home.
+
+PLAYER:
+Name: Ash Williams
+Weapons:
+    - Chainsaw (first boss)
+    - Shotgun  (second boss, different ammos)
+    - Iron Fist (third boss)
+Stats: (they automatically increase every level)
+    - level (experience)
+    - strenght (damage)
+    - perception (fov)
+    - agility (run speed)
+
+
+ENEMIES:
+    - easy skeleton
+    - zombies
+    - demons
+
