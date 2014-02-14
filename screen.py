@@ -10,7 +10,7 @@ class Screen:
             raise Exception('This terminal is too small: x > 79 and y > 23')
 
         curses.curs_set(0)  # Cursor is invisible
-        self.stdscr.timeout(1000)
+        self.stdscr.timeout(50)
 
         self.win_map = curses.newwin(20, 80, 0, 0)  # Map window
         self.win_msg = curses.newwin(4, 60, 20, 0)  # Message window
@@ -37,16 +37,19 @@ class Screen:
         '''Update general information'''
         pass
 
-    def draw_map(self, level_map):
+    def draw_dungeon(self, dungeon):
         '''Draw the map'''
         self.win_map.clear()
 
-        char = level_map.cell(79, 19).char  # Last character, historical reason
-        self.win_map.addch(19, 78, char)
+        # Last character, historical reason
+        self.win_map.addch(19, 78, str(dungeon.cell(79, 19)))
         self.win_map.insch(19, 78, ' ')
 
-        for cell in level_map.cells[:-1]:  # Except the last character
-            self.win_map.addch(cell.y, cell.x, cell.char)
+        for y in range(dungeon.height):
+            for x in range(dungeon.width):
+                # Except the last character
+                if y != 19 or x != 79:
+                    self.win_map.addch(y, x, str(dungeon.cell(x, y)))
 
         self.win_map.refresh()
 
