@@ -10,11 +10,12 @@ class Screen:
             raise Exception('This terminal is too small: x > 79 and y > 23')
 
         curses.curs_set(0)  # Cursor is invisible
-        self.stdscr.timeout(50)
 
         self.win_map = curses.newwin(20, 80, 0, 0)  # Map window
         self.win_msg = curses.newwin(4, 60, 20, 0)  # Message window
         self.win_info = curses.newwin(4, 20, 20, 61)  # General info window
+
+        self.win_map.timeout(0)
 
         self.msg_list = []  # Queue for messages
 
@@ -33,11 +34,23 @@ class Screen:
 
         self.win_msg.refresh()  # Auto refresh if a message is added
 
-    def update_info(self):
-        '''Update general information'''
-        pass
+    def ask_message(self, message):
+        self.push_message(message)
+        curses.echo()
+        answer = self.win_msg.getstr(3, len(message) + 1, 10).decode()
+        while not answer:
+            answer = self.win_msg.getstr(3, len(message) + 1, 10).decode()
 
-    def draw_dungeon(self, dungeon):
+        self.msg_list[1] = '%s %s' % (message, answer)
+        return answer
+
+    def update_info(self, player):
+        '''Update general information'''
+        self.win_info.clear()
+        self.win_info.addstr(0, 0, 'Turn: %d' % player.moves)
+        self.win_info.refresh()
+
+    def draw_dungeon(self, dungeon, player):
         '''Draw the map'''
         self.win_map.clear()
 
@@ -49,24 +62,24 @@ class Screen:
             for x in range(dungeon.width):
                 # Except the last character
                 if y != 19 or x != 79:
-                    self.win_map.addch(y, x, str(dungeon.cell(x, y)))
+                    if x == player.x and y == player.y:
+                        char = '@'
+                    else:
+                        char = str(dungeon.cell(x, y))
+                    self.win_map.addch(y, x, char)
 
         self.win_map.refresh()
 
     def get_key(self):
         '''Return the pressed key'''
-        key = self.stdscr.getch()
         curses.noecho()
+        key = self.win_map.getch()
         if key == 10:
             return ''  # No key pressed
         elif 32 <= key < 127:
             return chr(key)  # ASCII key pressed
         else:
             return None
-
-    def __del__(self):
-        '''Exit from curses mode'''
-        curses.endwin()
 
 
 def create_screen():

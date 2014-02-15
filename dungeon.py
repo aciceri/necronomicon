@@ -1,4 +1,5 @@
 from bsp_dungeon import BspDungeon
+from random import choice
 
 
 class Cell:
@@ -23,6 +24,9 @@ class Dungeon:
         if not (0 <= x < self.width and 0 <= y < self.height):
             raise IndexError('Coordinates are out of range')
         return self.cells[y][x]
+
+    def random_pos(self):
+        '''Return random coordinates of a walkable cell'''
 
     def generate(self, depth):
         bsp_dungeon = BspDungeon(self.width, self.height)
