@@ -8,9 +8,9 @@ class Game:
         self.screen = create_screen()
 
         self.dungeon = Dungeon(80, 20)
-        self.dungeon.generate(4)
+        self.dungeon.generate()
 
-        self.player = Player(3, 3)
+        self.player = Player(*self.dungeon.random_pos())
 
     def play(self):
         self.screen.get_key()
@@ -24,8 +24,6 @@ class Game:
                 quit = self.screen.ask_message('Do you really want to quit?')
                 if quit.lower() in ['y', 'yes']:
                     break
-                else:
-                    self.screen.push_message('As long as you want...')
 
             elif char == '?':  # Show help
                 self.screen.push_message('There will be a little help')

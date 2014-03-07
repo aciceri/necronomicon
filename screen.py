@@ -52,21 +52,22 @@ class Screen:
 
     def draw_dungeon(self, dungeon, player):
         '''Draw the map'''
-        self.win_map.clear()
+        fov = dungeon.calc_fov(player.x, player.y)
 
-        # Last character, historical reason
-        self.win_map.addch(19, 78, str(dungeon.cell(79, 19)))
-        self.win_map.insch(19, 78, ' ')
+        self.win_map.clear()
 
         for y in range(dungeon.height):
             for x in range(dungeon.width):
-                # Except the last character
-                if y != 19 or x != 79:
+                # Except the last character, for historical reason
+                if y != 19 and x != 79:
                     if x == player.x and y == player.y:
-                        char = '@'
+                        self.win_map.addch(y, x, '@', curses.A_BOLD)
                     else:
                         char = str(dungeon.cell(x, y))
-                    self.win_map.addch(y, x, char)
+                        if fov[y][x]:  # Inside FOV
+                            self.win_map.addch(y, x, char, curses.A_BOLD)
+                        elif dungeon.cells[y][x].already_seen:
+                            self.win_map.addch(y, x, char)
 
         self.win_map.refresh()
 
