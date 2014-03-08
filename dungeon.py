@@ -1,4 +1,4 @@
-from procedural_dungeon import ProceduralDungeon
+from dungeon_gen import DungeonGen
 from random import randrange
 from math import sin, cos, radians
 
@@ -21,6 +21,8 @@ class Dungeon:
         self.width, self.height = width, height
         self.cells = [[Cell(x, y) for x in range(self.width)]
                       for y in range(self.height)]
+        self.up_stair = None
+        self.down_stair = None
 
     def cell(self, x, y):
         if not (0 <= x < self.width and 0 <= y < self.height):
@@ -31,46 +33,53 @@ class Dungeon:
         '''Return random coordinates of a walkable cell'''
         while True:
             x, y = randrange(self.width), randrange(self.height)
-            if self.cells[y][x].walkable:
+            if self.cell(x, y).walkable:
                 return x, y
 
+    def populate(self):
+        '''Add objects to the dungeon'''
+        self.up_stair = self.random_pos()
+        self.cell(*self.up_stair).char = '<'
+        self.down_stair = self.random_pos()
+        self.cell(*self.down_stair).char = '>'
+
     def generate(self):
-        proc_dungeon = ProceduralDungeon(self.width, self.height)
-        proc_dungeon.generate(10)
+        dungeon = DungeonGen(self.width, self.height)
+        dungeon.generate(10)  # 10 rooms
 
         for y in range(self.height):
             for x in range(self.width):
-                if proc_dungeon.cells[y][x]:
-                    self.cells[y][x].walkable = True
-                    self.cells[y][x].char = '.'
+                if dungeon.cells[y][x]:
+                    self.cell(x, y).walkable = True
+                    self.cell(x, y).char = '.'
                 else:
-                    self.cells[y][x].walkable = False
-                    self.cells[y][x].char = '#'
+                    self.cell(x, y).walkable = False
+                    self.cell(x, y).char = '#'
 
-    def calc_fov(self, player_x, player_y):
+        self.populate()
+
+    def calc_fov(self, player):
         '''Return a matrix representing the Field Of Vision'''
-        fov = []
+        fov = []  # Create the fov matrix
         for y in range(self.height):
             fov.append([False] * self.width)
 
-        for i in range(361):
-            ax = sin(radians(i))
+        for i in range(360):  # 0 -> 360 degrees
+            ax = sin(radians(i))  # sin and cos take only radians
             ay = cos(radians(i))
 
-            x = player_x
-            y = player_y
+            x = player.x
+            y = player.y
 
-            for z in range(3):
+            for z in range(3):  # The depth of the ray
                 x += ax
                 y += ay
 
-                if x < 0 or y < 0 or x > self.width or y > self.height:
-                    break
+                round_x, round_y = round(x), round(y)
+                fov[round_y][round_x] = True
+                self.cell(round_x, round_y).already_seen = True
 
-                fov[round(y)][round(x)] = True
-                self.cells[round(y)][round(x)].already_seen = True
-
-                if not self.cells[round(y)][round(x)].walkable:
+                if not self.cell(round_x, round_y).walkable:  # The ray hits something
                     break
 
         return fov

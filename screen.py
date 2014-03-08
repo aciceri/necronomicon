@@ -19,6 +19,9 @@ class Screen:
 
         self.msg_list = []  # Queue for messages
 
+    def __del__(self):
+        curses.curs_set(1)  # Cursor is invisible
+
     def push_message(self, message):
         self.msg_list.append(str(message))  # Add new message to queue
         if len(self.msg_list) > 4:  # Manage the list as a queue
@@ -52,7 +55,7 @@ class Screen:
 
     def draw_dungeon(self, dungeon, player):
         '''Draw the map'''
-        fov = dungeon.calc_fov(player.x, player.y)
+        fov = dungeon.calc_fov(player)
 
         self.win_map.clear()
 
@@ -61,13 +64,17 @@ class Screen:
                 # Except the last character, for historical reason
                 if y != 19 and x != 79:
                     if x == player.x and y == player.y:
-                        self.win_map.addch(y, x, '@', curses.A_BOLD)
+                        self.win_map.addch(y, x, player.char, curses.A_BOLD)
                     else:
                         char = str(dungeon.cell(x, y))
                         if fov[y][x]:  # Inside FOV
                             self.win_map.addch(y, x, char, curses.A_BOLD)
                         elif dungeon.cells[y][x].already_seen:
                             self.win_map.addch(y, x, char)
+                        else:
+                            # Mystery
+                            # Using space creates vision artifacts
+                            self.win_map.addch(y, x, u"\u00A0")
 
         self.win_map.refresh()
 

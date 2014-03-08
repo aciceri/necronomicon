@@ -10,19 +10,19 @@ class Game:
         self.dungeon = Dungeon(80, 20)
         self.dungeon.generate()
 
-        self.player = Player(*self.dungeon.random_pos())
+        self.player = Player(*self.dungeon.up_stair)
 
     def play(self):
         self.screen.get_key()
         self.screen.draw_dungeon(self.dungeon, self.player)
         self.screen.push_message('Welcome to Necronomicon, my first roguelike...')
 
-        while True:
+        while True:  # Main game loop
             char = self.screen.get_key()
 
             if char == 'q':  # Quit game
                 quit = self.screen.ask_message('Do you really want to quit?')
-                if quit.lower() in ['y', 'yes']:
+                if quit.lower() in ['y', 'yes', 'yea']:
                     break
 
             elif char == '?':  # Show help
@@ -34,4 +34,4 @@ class Game:
                     self.screen.draw_dungeon(self.dungeon, self.player)
                     self.screen.update_info(self.player)
                 else:
-                    self.screen.push_message('You crashed')
+                    self.screen.push_message('You bump something')
