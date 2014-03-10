@@ -51,6 +51,7 @@ class Screen:
         '''Update general information'''
         self.win_info.clear()
         self.win_info.addstr(0, 0, 'Turn: %d' % player.moves)
+        self.win_info.addstr(1, 0, 'Floor: %d' % player.floor)
         self.win_info.refresh()
 
     def draw_dungeon(self, dungeon, player):

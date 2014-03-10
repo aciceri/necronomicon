@@ -19,10 +19,6 @@ class Dungeon:
     def __init__(self, width, height):
         '''Initialize an empty dungeon'''
         self.width, self.height = width, height
-        self.cells = [[Cell(x, y) for x in range(self.width)]
-                      for y in range(self.height)]
-        self.up_stair = None
-        self.down_stair = None
 
     def cell(self, x, y):
         if not (0 <= x < self.width and 0 <= y < self.height):
@@ -36,14 +32,46 @@ class Dungeon:
             if self.cell(x, y).walkable:
                 return x, y
 
-    def populate(self):
+    def adjacent(self, x, y):
+        '''Return the number of not walkable adjacent cells'''
+        n = 0
+        for i in (-1, 0, 1):
+            for j in (-1, 0, 1):
+                if not self.cell(x + i, y + j).walkable:
+                    n += 1
+        return n
+
+    def add_stairs(self):
         '''Add objects to the dungeon'''
-        self.up_stair = self.random_pos()
-        self.cell(*self.up_stair).char = '<'
-        self.down_stair = self.random_pos()
-        self.cell(*self.down_stair).char = '>'
+        while True:  # Up stair
+            x, y = self.random_pos()
+            if self.adjacent(x, y) == 0:  # A stair has 0 adjacent cells
+                break
+        self.up_stair = (x, y)
+        self.cell(x, y).char = '<'
+
+        while True:  # Down stair
+            x, y = self.random_pos()
+            if self.cell(x, y).char != '<' and self.adjacent(x, y) == 0:
+                break
+        self.down_stair = (x, y)
+        self.cell(x, y).char = '>'
+
+    def add_doors(self, doors):
+        for _ in range(doors):
+            pass
+
+    def populate(self):
+        self.add_stairs()
+        self.add_doors(4)  # How many doors
+        #self.add_other()
 
     def generate(self):
+        self.cells = [[Cell(x, y) for x in range(self.width)]
+                      for y in range(self.height)]
+        self.up_stair = None
+        self.down_stair = None
+
         dungeon = DungeonGen(self.width, self.height)
         dungeon.generate(10)  # 10 rooms
 
@@ -79,7 +107,7 @@ class Dungeon:
                 fov[round_y][round_x] = True
                 self.cell(round_x, round_y).already_seen = True
 
-                if not self.cell(round_x, round_y).walkable:  # The ray hits something
+                if not self.cell(round_x, round_y).walkable:  # The ray hits
                     break
 
         return fov

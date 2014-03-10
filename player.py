@@ -2,6 +2,7 @@ class Player:
     def __init__(self, x, y):
         self.x, self.y = x, y
         self.moves = 0
+        self.floor = 1
         self.inventory = []
         self.char = '@'
 
