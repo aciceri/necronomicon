@@ -17,23 +17,32 @@ class Screen:
 
         self.win_map.timeout(0)
 
-        self.msg_list = []  # Queue for messages
+        self.msg_list = [['', 1] * 4]  # Queue for messages
 
     def __del__(self):
         curses.curs_set(1)  # Cursor is invisible
 
     def push_message(self, message):
-        self.msg_list.append(str(message))  # Add new message to queue
-        if len(self.msg_list) > 4:  # Manage the list as a queue
-            self.msg_list.pop(0)
+        if str(message) in self.msg_list[-1]:
+            self.msg_list[-1][1] += 1
+        else:
+            self.msg_list.append([str(message), 1])  # Add new message to queue
+            if len(self.msg_list) > 4:  # Manage the list as a queue
+                self.msg_list.pop(0)
 
         self.win_msg.clear()
 
         for n, msg in enumerate(self.msg_list[::-1]):
             if n == 0:  # If it is the last message
-                self.win_msg.addstr(3 - n, 0, msg, curses.A_BOLD)
+                if msg[1] > 1:
+                    self.win_msg.addstr(3 - n, 0, '%s (x%d)' % (msg[0], msg[1]), curses.A_BOLD)
+                else:
+                    self.win_msg.addstr(3 - n, 0, msg[0], curses.A_BOLD)
             else:
-                self.win_msg.addstr(3 - n, 0, msg)
+                if msg[1] > 1:
+                    self.win_msg.addstr(3 - n, 0, '%s (x%d)' % (msg[0], msg[1]))
+                else:
+                    self.win_msg.addstr(3 - n, 0, msg[0])
 
         self.win_msg.refresh()  # Auto refresh if a message is added
 
